@@ -1,55 +1,65 @@
 #!/bin/bash
 
+#
+# This Script downloads a python script and creates a Docker Image
+# Repo: https://github.com/zumbsy/solarplant
+# 
+#
+
 # Check if Docker is installed
-if ! command -v docker &> /dev/null
-then
-    echo "Docker not Found. Please install Docker and retry again."
+echo "Checking if Docker is installed"
+if ! [ -x "$(command -v docker)" ]; then
+    echo "Docker not found"
     exit 1
 fi
 
 # Create Temporary directory
+echo "Create Temp Directory"
 temp_dir=$(mktemp -d)
+cd "$temp_dir" || exit
 
-cd $temp_dir
+# Download necessary files from GitHub repository
+repo_url="https://raw.githubusercontent.com/zumbsy/solarplant/main"
+files=(dockerfile main.py requirements.txt VERSION)
 
-curl -O https://raw.githubusercontent.com/username/repositoryname/main/Dockerfile
-curl -O https://raw.githubusercontent.com/username/repositoryname/main/main.py
-curl -O https://raw.githubusercontent.com/username/repositoryname/main/requirements.txt
-curl -O https://raw.githubusercontent.com/username/repositoryname/main/VERSION
+echo "Downloading necessary files for the image"
+for file in "${files[@]}"
+do
+    echo "Downloading: $repo_url/$file"
+    curl -SfO "$repo_url/$file"
+    if [ ! -f "$file" ]; then
+        echo "$file not found."
+        exit 1
+    fi
+done
 
-if [ ! -f Dockerfile ]; then
-    echo "Dockerfile not found."
-    exit 1
-fi
+echo "All necessary files downloaded successfully."
 
-if [ ! -f main.py ]; then
-    echo "main.py not found."
-    exit 1
-fi
 
-if [ ! -f requirements.txt ]; then
-    echo "requirements.txt not found."
-    exit 1
-fi
-
-if [ ! -f VERSION ]; then
-    echo "VERSION File not found."
-    exit 1
-fi
-
-# Get latest Version from the VERSION file
+# Get latest version from the VERSION file
 version=$(cat VERSION)
+echo "Latest version: $version"
 
-# Create Docker image
-docker build -t solarplant:$version .
+# Check if image already exists
+if [ -n "$(docker images -q solarplant:"$version" 2> /dev/null)" ]; then
+  echo "Image 'solarplant:$version' already exists."
+  exit 1
+fi
 
-# Check if Image was created successfully
+# Build Docker image using docker
+echo "Building Docker Image"
+docker build -t solarplant:"$version" .
+
+# Check if image was created successfully
 if [ $? -eq 0 ]; then
-    echo "Docker-Image 'solarplant:$version' successfully created."
+    echo "Docker image 'solarplant:$version' successfully created."
 else
-    echo "Error while creating a Docker-Image."
+    echo "Error while creating the Docker image."
     exit 1
 fi
-rm -rf $temp_dir
+
+# Clean up temporary directory
+echo "Cleanup Temp Directory"
+rm -rf "$temp_dir"
 
 echo "Visit Documentation: https://github.com/zumbsy/solarplant"
