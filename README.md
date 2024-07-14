@@ -28,7 +28,7 @@ services:
       WEB_USERNAME: admin
       WEB_PASSWORD: admin
       MYSQL_USERNAME: root
-      MYSQL_PASSWORD: 
+      MYSQL_PASSWORD: password1
       MYSQL_SERVER: 192.168.0.5
       MYSQL_TABLE: solarplant
       MYSQL_DATABASE: solar
