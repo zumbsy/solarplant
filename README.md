@@ -7,7 +7,12 @@ The system consists of the integrated web server of the solar plant, a Docker co
 This database can be used, for example, as a datasource for a Grafana dashboard to visualize the collected solar plant data.
 ## Installation
 
-To install the image directly from GitHub, use the following command on your Docker device:
+You can pull the latest image directly from the [Docker Hub](https://hub.docker.com/r/zumbsy/solarplant)
+```bash
+docker pull zumbsy/solarplant:latest
+```
+
+Or download from GitHub and create it locally. Just use the following command on your Docker Server:
 ```bash
 curl -sL https://raw.githubusercontent.com/zumbsy/solarplant/main/install.sh | bash
 ```
@@ -20,7 +25,7 @@ Template `docker-compose.yml`
 version: '3'
 services:
   solarplant:
-    image: solarplant:2.1
+    image: zumbsy/solarplant:latest
     container_name: container01
     restart: unless-stopped
     environment:
@@ -77,7 +82,6 @@ CREATE TABLE table_name (
 - If an error occurs, retries are attempted every 20 seconds. During nighttime, the web server of the solar plant is unreachable, resulting in 3 timeout errors per minute.
 ## ToDo
 - Integrate with the sunrisesunset.io API to capture sunrise and sunset times for pausing the script during nighttime.
-- Publish the Image to the Docker Repository
 
 ## License
 
